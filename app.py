@@ -317,7 +317,7 @@ def index():
                             access_token=store.access_token)
 
     # Fetch a few products
-    products = client.Products.all()
+    products = client.Ordes.all()
 
     # Render page
     context = dict()
@@ -326,7 +326,7 @@ def index():
     context['store'] = store
     context['client_id'] = client_id()
     context['api_url'] = client.connection.host
-    return render('index.html', context)
+    return render('order_placed.html', context)
 
 
 @app.route('/instructions')
