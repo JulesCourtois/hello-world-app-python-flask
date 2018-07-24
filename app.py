@@ -181,7 +181,7 @@ def auth_callback():
             'destination': destination
         }
         # client.Webhooks.create(data)
-        client.connection.make_request("POST", store_hash + '/v2/hooks', data=data)
+        client.connection.make_request("POST", '/' + store_hash + '/v2/hooks', data=data)
         # client.Products.create(name='test_from_app', price='10.00')
         # client.Webhooks.create(scope='store/order/created', destination=destination)
     else:
