@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+    <body>
+      <h1>Welcome {{user.email}}!</h1>
+
+      <hr/>
+      <h2>Client ID</h2>
+      <pre>{{client_id}}</pre>
+
+      <hr/>
+      <h2>User</h2>
+      <pre>{{user|e}}</pre>
+
+      <hr/>
+      <h2>Store</h2>
+      <pre>{{store|e}}</pre>
+
+      <hr/>
+      <h2>CURL</h2>
+      <pre>
+        curl -XGET -v -H 'Accept: application/json'
+                      -H 'X-Auth-Client: {{client_id}}'
+                      -H 'X-Auth-Token: {{store.access_token}}'
+                      https://{{api_url}}/stores/{{store.store_hash}}/v2/products
+      </pre>
+
+      <hr/>
+      <h2>Products</h2>
+      <ul>
+        {% for p in products %}
+          <li>{{ p.id }} &mdash; {{ p.date_created }}</li>
+        {% endfor %}
+      </ul>
+
+      <hr/>
+      <h2>Scopes</h2>
+      <ul>
+        {{ store.scope }}
+      </ul>
+    </body>
+</html>

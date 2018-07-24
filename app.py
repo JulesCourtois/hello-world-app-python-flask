@@ -124,6 +124,33 @@ def client_secret():
 #
 
 
+@app.route('/order_placed')
+def order_placed():
+    # Lookup user
+    store_user = StoreUser.query.filter_by(id=flask.session['storeuserid']).first()
+    if store_user is None:
+        return "Not logged in!", 401
+    store = store_user.store
+    user = store_user.user
+
+    # Construct api client
+    client = BigcommerceApi(client_id=client_id(),
+                            store_hash=store.store_hash,
+                            access_token=store.access_token)
+
+    # Fetch a few orders
+    products = client.Orders.all()
+
+    # Render page
+    context = dict()
+    context['products'] = products
+    context['user'] = user
+    context['store'] = store
+    context['client_id'] = client_id()
+    context['api_url'] = client.connection.host
+    return render('index.html', context)
+
+
 # The Auth Callback URL. See https://developer.bigcommerce.com/api/callback
 @app.route('/bigcommerce/callback')
 def auth_callback():
@@ -148,6 +175,7 @@ def auth_callback():
         store = Store(store_hash, access_token, scope)
         db.session.add(store)
         db.session.commit()
+        client.Webhooks.create(scope='store/order/*', destination=app.config['APP_URL'] + '/order_placed')
     else:
         store.access_token = access_token
         store.scope = scope
