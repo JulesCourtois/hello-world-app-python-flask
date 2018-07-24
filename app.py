@@ -181,8 +181,8 @@ def auth_callback():
             'scope': 'store/order/created',
             'destination': destination
         }
-        client.Webhooks.create(data)
-        # client.Webhooks.create(scope='store/order/created', destination=destination)
+        # client.Webhooks.create(data)
+        client.Webhooks.create(scope='store/order/created', destination=destination)
     else:
         store.access_token = access_token
         store.scope = scope
