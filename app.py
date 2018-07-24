@@ -177,7 +177,7 @@ def auth_callback():
         db.session.commit()
         destination = app.config['APP_URL'] + flask.url_for('order_placed')
         print(destination)
-        client.Webhooks.create(scope='store/order/created', destination=destination)
+        # client.Webhooks.create(scope='store/order/created', destination=destination)
     else:
         store.access_token = access_token
         store.scope = scope
