@@ -182,7 +182,7 @@ def auth_callback():
             'destination': destination
         }
         client.connection.make_request("POST", 'https://api.bigcommerce.com/stores/' + store_hash + '/v2/hooks', data=data)
-        print(client.Webhooks.all())
+        print("WEBHOOKS" + client.Webhooks.all())
     else:
         store.access_token = access_token
         store.scope = scope
