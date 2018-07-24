@@ -317,7 +317,7 @@ def index():
                             access_token=store.access_token)
 
     # Fetch a few products
-    products = client.Ordes.all()
+    products = client.Orders.all()
 
     # Render page
     context = dict()
