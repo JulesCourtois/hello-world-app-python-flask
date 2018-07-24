@@ -126,6 +126,7 @@ def client_secret():
 
 @app.route('/order_placed')
 def order_placed():
+    print("IT'S WORKING AMENENENENENENENENENENNE")
     # Lookup user
     store_user = StoreUser.query.filter_by(id=flask.session['storeuserid']).first()
     if store_user is None:
