@@ -124,7 +124,7 @@ def client_secret():
 #
 
 
-@app.route('/order_placed')
+@app.route('/order_placed', methods=['GET', 'POST'])
 def order_placed():
     print("IT'S WORKING AMENENENENENENENENENENNE")
     # Lookup user
