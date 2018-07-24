@@ -130,7 +130,7 @@ def order_placed():
     # Lookup user
     store_user = StoreUser.query.filter_by(id=flask.session['storeuserid']).first()
     if store_user is None:
-        return "Not logged in!", 401
+        print("Not logged in! 401")
     store = store_user.store
     user = store_user.user
 
@@ -149,7 +149,7 @@ def order_placed():
     context['store'] = store
     context['client_id'] = client_id()
     context['api_url'] = client.connection.host
-    return render('index.html', context)
+    return render('order_placed.html', context)
 
 
 # The Auth Callback URL. See https://developer.bigcommerce.com/api/callback
@@ -181,10 +181,8 @@ def auth_callback():
             'scope': 'store/order/created',
             'destination': destination
         }
-        # client.Webhooks.create(data)
         client.connection.make_request("POST", 'https://api.bigcommerce.com/stores/' + store_hash + '/v2/hooks', data=data)
-        # client.Products.create(name='test_from_app', price='10.00')
-        # client.Webhooks.create(scope='store/order/created', destination=destination)
+        print(client.Webhooks.all())
     else:
         store.access_token = access_token
         store.scope = scope
