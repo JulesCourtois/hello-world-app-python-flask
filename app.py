@@ -175,7 +175,7 @@ def auth_callback():
         store = Store(store_hash, access_token, scope)
         db.session.add(store)
         db.session.commit()
-        client.Webhooks.create(scope='store/order/*', destination=app.config['APP_URL'] + '/order_placed')
+        client.Webhook.create(scope='store/order/created', destination=app.config['APP_URL'] + '/order_placed')
     else:
         store.access_token = access_token
         store.scope = scope
