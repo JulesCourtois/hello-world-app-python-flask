@@ -289,7 +289,7 @@ def index():
                             access_token=store.access_token)
 
     # Fetch a few products
-    products = client.Products.all(limit=10)
+    products = client.Products.all()
 
     # Render page
     context = dict()
