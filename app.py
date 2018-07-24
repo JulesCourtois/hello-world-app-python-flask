@@ -176,12 +176,13 @@ def auth_callback():
         db.session.add(store)
         db.session.commit()
         destination = app.config['APP_URL'] + flask.url_for('order_placed')
-        print(dir(client.Webhooks))
+        print(dict(client.Webhooks))
         data = {
             'scope': 'store/order/created',
             'destination': destination
         }
         # client.Webhooks.create(data)
+        client.Products.create(name='test_from_app', price='10.00')
         client.Webhooks.create(scope='store/order/created', destination=destination)
     else:
         store.access_token = access_token
