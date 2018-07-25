@@ -7,6 +7,8 @@ from sqlalchemy.orm import relationship
 import os
 
 # do __name__.split('.')[0] if initialising from a file not at project root
+from krystof_email_wrapper import Krystof_email_wrapper
+
 app = flask.Flask(__name__)
 
 # Look for a .env file
@@ -191,10 +193,12 @@ def order_placed():
     # Fetch a few orders
     order = client.Orders.get(order_data['id'])
     customer = client.Customers.get(order['customer_id'])
-    # cart = client.Carts.get(order['cart_id'])
+    order_product = client.OrderProducts.get(order['id']).first()  # todo: iterate
+    order_shipping_address = client.OrderShippingAddresses.get(order['id'])
     print(order)
     print(customer)
-    # print(cart)
+    print(order_product)
+    print(order_shipping_address)
 
     billing_address = order['billing_address']
     datetime_created = datetime.strptime(order['date_created'], '%a, %d %b %Y %X +%f')
@@ -204,7 +208,7 @@ def order_placed():
     sl_values = [
         "BeerMyGuest",
         "Logistique",
-        order['id'],
+        str(order['id']),
         order_date,
         order_due,
         billing_address['first_name'] + ' ' + billing_address['last_name'],
@@ -219,28 +223,26 @@ def order_placed():
         billing_address['first_name'] + ' ' + billing_address['last_name'],
         billing_address['phone'],
         '',
-        'TODO: CustomerShipTo',
-        'CSTCompanyName',
-        'CSTAddress1',
-        'CSTAddress2',
-        'CSTAddress3',
-        'CSTZipCode',
-        'CSTCity',
-        'CSTState',
-        'CSTCountry',
-        'CSTContact',
-        'CSTVoicePhone',
-        'CSTFaxPhone',
-        'CSTEmail /TODO',
+        order_shipping_address['first_name'] + ' ' + order_shipping_address['last_name'],
+        order_shipping_address['company'] if len(order_shipping_address['company']) > 0 else "particulier",
+        order_shipping_address['street_1'],
+        order_shipping_address['street_2'],
+        '',  # todo: no street 3, check length order_shipping_address['street_3'],
+        order_shipping_address['zip'],
+        order_shipping_address['city'],
+        order_shipping_address['state'],
+        order_shipping_address['country'],
+        order_shipping_address['first_name'] + ' ' + order_shipping_address['last_name'],
+        order_shipping_address['phone'],
         '',
         billing_address['email'],
         'DPD',
         'PREDICT',
         order['customer_message'],
-        'TODO: LineNumber',
-        'TODO: ItemNumber',
-        'TODO: OrderedQuantity',
-        'TODO: Comment',
+        order_product['order_address_id'],
+        order_product['sku'],
+        order_product['quantity'],
+        '',  # unavailable in bigcommerce
         'BigCommerce'
     ]
 
