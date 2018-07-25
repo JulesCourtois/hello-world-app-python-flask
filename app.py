@@ -192,8 +192,8 @@ def order_placed():
     # Fetch a few orders
     order = client.Orders.get(order_data['id'])
     customer = client.Customers.get(order['customer_id'])
-    order_product = client.OrderProducts.get(order['id'])
-    order_shipping_address = client.OrderShippingAddresses.get(order['id'])
+    order_product = client.OrderProducts.get(order['id']).all()
+    order_shipping_address = client.OrderShippingAddresses.get(order['id']).all()
     print(order)
     print(customer)
     print(order_product)
