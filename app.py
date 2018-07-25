@@ -238,9 +238,9 @@ def order_placed():
         'DPD',
         'PREDICT',
         order['customer_message'],
-        order_product['order_address_id'],
-        order_product['sku'],
-        order_product['quantity'],
+        str(order_product['order_address_id']),
+        str(order_product['sku']),
+        str(order_product['quantity']),
         '',  # unavailable in bigcommerce
         'BigCommerce'
     ]
