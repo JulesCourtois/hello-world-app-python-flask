@@ -191,10 +191,10 @@ def order_placed():
     # Fetch a few orders
     order = client.Orders.get(order_data['id'])
     customer = client.Customers.get(order['customer_id'])
-    cart = client.Carts.get(order['cart_id'])
+    # cart = client.Carts.get(order['cart_id'])
     print(order)
     print(customer)
-    print(cart)
+    # print(cart)
 
     billing_address = order['billing_address']
     datetime_created = datetime.strptime(order['date_created'], '%a, %d %b %Y %X +%f')
@@ -235,11 +235,11 @@ def order_placed():
         billing_address['email'],
         'DPD',
         'PREDICT',
-        'Commentaire',
-        'LineNumber',
-        'ItemNumber',
-        'OrderedQuantity',
-        'Comment',
+        order['customer_message'],
+        'TODO: LineNumber',
+        'TODO: ItemNumber',
+        'TODO: OrderedQuantity',
+        'TODO: Comment',
         'BigCommerce'
     ]
 
