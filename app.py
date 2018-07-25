@@ -1,4 +1,5 @@
 from bigcommerce.api import BigcommerceApi
+from datetime import datetime, timedelta
 import dotenv
 import flask
 from flask_sqlalchemy import SQLAlchemy
@@ -57,7 +58,7 @@ class StoreUser(db.Model):
 
     def __repr__(self):
         return '<StoreUser id=%d email=%s user_id=%s store_id=%d  admin=%s>' \
-               % (self.id, self.user.email, self.user_id,  self.store.store_id, self.admin)
+               % (self.id, self.user.email, self.user_id, self.store.store_id, self.admin)
 
 
 class Store(db.Model):
@@ -119,6 +120,51 @@ def client_id():
 def client_secret():
     return app.config['APP_CLIENT_SECRET']
 
+
+def sl_keys():
+    return [
+        'Owner',
+        'Site',
+        'OrderNumber',
+        'OrderDate',
+        'DueDate',
+        'CustomerBillTo',
+        'CBTCompanyName',
+        'CBTAddress1',
+        'CBTAddress2',
+        'CBTAddress3',
+        'CBTZipCode',
+        'CBTCity',
+        'CBTState',
+        'CBTCountry',
+        'CBTContact',
+        'CBTVoicePhone',
+        'CBTFaxPhone',
+        'CBTEmail',
+        'CustomerShipTo',
+        'CSTCompanyName',
+        'CSTAddress1',
+        'CSTAddress2',
+        'CSTAddress3',
+        'CSTZipCode',
+        'CSTCity',
+        'CSTState',
+        'CSTCountry',
+        'CSTContact',
+        'CSTVoicePhone',
+        'CSTFaxPhone',
+        'CSTEmail',
+        'Carrier',
+        'ShippingMethod',
+        'Commentaire',
+        'LineNumber',
+        'ItemNumber',
+        'OrderedQuantity',
+        'Comment',
+        'Enseigne'
+    ]
+
+
 #
 # OAuth pages
 #
@@ -126,14 +172,12 @@ def client_secret():
 
 @app.route('/order_placed', methods=['GET', 'POST'])
 def order_placed():
+    print("REQUEST RULE::")
+    print(flask.request.url_rule)
+
     # Lookup user
     data = flask.request.get_json()
     order_data = data['data']
-    # store_user = StoreUser.query.filter_by(id=flask.session['storeuserid']).first()
-    # if store_user is None:
-    #     print("Not logged in! 401")
-    # store = store_user.store
-    # user = store_user.user
 
     store_hash = "v3qjgep9sv"
     store = db.session.query(Store).filter_by(store_hash=store_hash).first()
@@ -146,7 +190,66 @@ def order_placed():
 
     # Fetch a few orders
     order = client.Orders.get(order_data['id'])
+    customer = client.Customers.get(order_data['customer_id'])
+    cart = client.Carts.get(order_data['cart_id'])
     print(order)
+    print(customer)
+    print(cart)
+
+    billing_address = order['billing_address']
+    datetime_created = datetime.strptime(order['date_created'], '%a, %d %b %Y %X +%f')
+    order_date = datetime_created.strftime('%Y%m%d')
+    order_due = (datetime_created + timedelta(days=1)).strftime('%Y%m%d')
+
+    sl_values = [
+        "BeerMyGuest",
+        "Logistique",
+        order['id'],
+        order_date,
+        order_due,
+        customer['first_name'] + ' ' + customer['last_name'],
+        customer['company'] | "particulier",
+        'CBTAddress1',
+        'CBTAddress2',
+        'CBTAddress3',
+        'CBTZipCode',
+        'CBTCity',
+        'CBTState',
+        'CBTCountry',
+        'CBTContact',
+        'CBTVoicePhone',
+        'CBTFaxPhone',
+        'CBTEmail',
+        billing_address['first_name'] + ' ' + billing_address['last_name'],
+        billing_address['company'] | "particulier",
+        billing_address['street_1'],
+        billing_address['street_2'],
+        billing_address['street_3'],
+        billing_address['zip'],
+        billing_address['city'],
+        billing_address['state'],
+        billing_address['country'],
+        billing_address['first_name'] + ' ' + billing_address['last_name'],
+        billing_address['phone'],
+        '',
+        billing_address['email'],
+        'DPD',
+        'PREDICT',
+        'Commentaire',
+        'LineNumber',
+        'ItemNumber',
+        'OrderedQuantity',
+        'Comment',
+        'BigCommerce'
+    ]
+
+    keys_string = '\t'.join(sl_keys())
+    values_string = '\t'.join(sl_values)
+
+    file_data = keys_string + "\cr\n" + values_string
+
+    print(len(sl_keys()))
+    print(file_data)
 
     return flask.Response('OK', status=200)
 
@@ -180,7 +283,8 @@ def auth_callback():
             'scope': 'store/order/created',
             'destination': destination
         }
-        client.connection.make_request("POST", 'https://api.bigcommerce.com/stores/' + store_hash + '/v2/hooks', data=data)
+        client.connection.make_request("POST", 'https://api.bigcommerce.com/stores/' + store_hash + '/v2/hooks',
+                                       data=data)
         print(client.Webhooks.all())
     else:
         store.access_token = access_token
