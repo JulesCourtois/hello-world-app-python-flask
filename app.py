@@ -211,7 +211,7 @@ def order_placed():
         billing_address['company'] if len(billing_address['company']) > 0 else "particulier",
         billing_address['street_1'],
         billing_address['street_2'],
-        billing_address['street_3'],
+        '',  # todo: no street 3, check length billing_address['street_3'],
         billing_address['zip'],
         billing_address['city'],
         billing_address['state'],
