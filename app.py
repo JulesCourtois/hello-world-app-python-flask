@@ -1,5 +1,6 @@
 from bigcommerce.api import BigcommerceApi
 from datetime import datetime, timedelta
+import smtplib
 import dotenv
 import flask
 from flask_sqlalchemy import SQLAlchemy
@@ -180,7 +181,7 @@ def order_placed():
     data = flask.request.get_json()
     order_data = data['data']
 
-    store_hash = "v3qjgep9sv"
+    store_hash = "4atxht2sgv"
     store = db.session.query(Store).filter_by(store_hash=store_hash).first()
     # for key, value in data.items():
 
@@ -250,10 +251,18 @@ def order_placed():
 
     file_data = '\n'.join([keys_string, values_string])
 
-    print(values_string)
-    print(len(sl_keys()))
     print(file_data)
 
+    # send emails
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+    server.login("logistic@beermyguest.ch", "Beer_2018")
+    text = file_data # todo: send as attachment ?
+    server.sendmail("stlo.manager@beermyguest.ch", "ib@beermyguest.ch", text)  # todo: fill to
+
+    #  todo: fix double call
     return flask.Response('OK', status=200)
 
 
