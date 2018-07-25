@@ -248,8 +248,9 @@ def order_placed():
     keys_string = '\t'.join(sl_keys())
     values_string = '\t'.join(sl_values)
 
-    file_data = keys_string + "\cr\n" + values_string
+    file_data = keys_string + "\n" + values_string
 
+    print(values_string)
     print(len(sl_keys()))
     print(file_data)
 
