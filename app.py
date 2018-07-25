@@ -190,8 +190,8 @@ def order_placed():
 
     # Fetch a few orders
     order = client.Orders.get(order_data['id'])
-    customer = client.Customers.get(order_data['customer_id'])
-    cart = client.Carts.get(order_data['cart_id'])
+    customer = client.Customers.get(order['customer_id'])
+    cart = client.Carts.get(order['cart_id'])
     print(order)
     print(customer)
     print(cart)
