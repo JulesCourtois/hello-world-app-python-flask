@@ -127,20 +127,26 @@ def client_secret():
 @app.route('/order_placed', methods=['GET', 'POST'])
 def order_placed():
     # Lookup user
-    print(flask.request.get_json())
+    data = flask.request.get_json()
+    order_data = data['data']
     # store_user = StoreUser.query.filter_by(id=flask.session['storeuserid']).first()
     # if store_user is None:
     #     print("Not logged in! 401")
     # store = store_user.store
     # user = store_user.user
 
+    store_hash = "v3qjgep9sv"
+    store = db.session.query(Store).filter_by(store_hash=store_hash).first()
+    # for key, value in data.items():
+
     # Construct api client
-    # client = BigcommerceApi(client_id=client_id(),
-    #                         store_hash=store.store_hash,
-    #                         access_token=store.access_token)
+    client = BigcommerceApi(client_id=client_id(),
+                            store_hash=store_hash,
+                            access_token=store.access_token)
 
     # Fetch a few orders
-    # products = client.Orders.all()
+    order = client.Orders.get(order_data['id'])
+    print(order)
 
     return flask.Response('OK', status=200)
 
@@ -175,7 +181,6 @@ def auth_callback():
             'destination': destination
         }
         client.connection.make_request("POST", 'https://api.bigcommerce.com/stores/' + store_hash + '/v2/hooks', data=data)
-        print("WEBHOOKS")
         print(client.Webhooks.all())
     else:
         store.access_token = access_token
