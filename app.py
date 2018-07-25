@@ -7,7 +7,6 @@ from sqlalchemy.orm import relationship
 import os
 
 # do __name__.split('.')[0] if initialising from a file not at project root
-from krystof_email_wrapper import Krystof_email_wrapper
 
 app = flask.Flask(__name__)
 
