@@ -195,9 +195,9 @@ def order_placed():
     customer = client.Customers.get(order['customer_id'])
     print(order)
     print(customer)
-    order_product = client.OrderProducts.all(parentid=order['id'])[0]
+    order_products = client.OrderProducts.all(parentid=order['id'])  # todo: iterate
     order_shipping_address = client.OrderShippingAddresses.all(parentid=order['id'])[0]
-    print(order_product)
+    print(order_products)
     print(order_shipping_address)
 
     billing_address = order['billing_address']
@@ -205,62 +205,74 @@ def order_placed():
     order_date = datetime_created.strftime('%Y%m%d')
     order_due = (datetime_created + timedelta(days=1)).strftime('%Y%m%d')
 
-    sl_values = [
-        "BeerMyGuest",
-        "Logistique",
-        str(order['id']),
-        order_date,
-        order_due,
-        billing_address['first_name'] + ' ' + billing_address['last_name'],
-        billing_address['company'] if len(billing_address['company']) > 0 else "particulier",
-        billing_address['street_1'],
-        billing_address['street_2'],
-        '',  # todo: no street 3, check length billing_address['street_3'],
-        str(billing_address['zip']),
-        billing_address['city'],
-        billing_address['state'],
-        billing_address['country'],
-        billing_address['first_name'] + ' ' + billing_address['last_name'],
-        str(billing_address['phone']),
-        '',
-        order_shipping_address['first_name'] + ' ' + order_shipping_address['last_name'],
-        order_shipping_address['company'] if len(order_shipping_address['company']) > 0 else "particulier",
-        order_shipping_address['street_1'],
-        order_shipping_address['street_2'],
-        '',  # todo: no street 3, check length order_shipping_address['street_3'],
-        str(order_shipping_address['zip']),
-        order_shipping_address['city'],
-        order_shipping_address['state'],
-        order_shipping_address['country'],
-        order_shipping_address['first_name'] + ' ' + order_shipping_address['last_name'],
-        str(order_shipping_address['phone']),
-        '',
-        billing_address['email'],
-        'DPD',
-        'PREDICT',
-        order['customer_message'],
-        str(order_product['order_address_id']),
-        str(order_product['sku']),
-        str(order_product['quantity']),
-        '',  # unavailable in bigcommerce
-        'BigCommerce'
-    ]
+    # todo: mapper un sku à une table
+
+    sl_values_array = []
+
+    for product in order_products:
+        # todo: limit field
+        billing_address_street = billing_address['street_1'] + billing_address['street_2']
+        shipping_address_street = order_shipping_address['street_1'] + order_shipping_address['street_2']
+
+        sl_values = [
+            "BeerMyGuest",
+            "Logistique",
+            str(order['id']),
+            order_date,
+            order_due,
+            (billing_address['last_name'] + ' ' + billing_address['first_name'])[:20],
+            billing_address['company'][:40] if len(billing_address['company']) > 0 else "particulier",
+            billing_address[:20],
+            billing_address[20:40],
+            billing_address[40:60],
+            str(billing_address['zip'])[:15],
+            billing_address['city'][:40],
+            billing_address['state'][:40],
+            billing_address['country'][:40],
+            (billing_address['last_name'] + ' ' + billing_address['first_name'])[:40],
+            str(billing_address['phone'])[:25],
+            '',
+            billing_address['email'][:100],
+            (order_shipping_address['last_name'] + ' ' + order_shipping_address['first_name'])[:20],
+            order_shipping_address['company'][:40] if len(order_shipping_address['company']) > 0 else "particulier",
+            order_shipping_address[:20],
+            order_shipping_address[20:40],
+            order_shipping_address[40:60],
+            str(order_shipping_address['zip'])[:15],
+            order_shipping_address['city'][:40],
+            order_shipping_address['state'][:40],
+            order_shipping_address['country'][:40],
+            (order_shipping_address['last_name'] + ' ' + order_shipping_address['first_name'])[:40],
+            str(order_shipping_address['phone'])[:25],
+            '',
+            order_shipping_address['email'][:100],
+            'DPD',
+            'PREDICT',
+            order['customer_message'][:100],
+            str(product['order_address_id'])[:20],
+            str(product['sku'])[:20],
+            str(product['quantity'])[:5],
+            '',  # unavailable in bigcommerce
+            'BigCommerce'
+        ]
+        sl_values_array.append(sl_values)
 
     keys_string = '\t'.join(sl_keys())
-    values_string = '\t'.join(sl_values)
+    values_strings_array = map(lambda values: '\t'.join(values), sl_values_array)
+    values_string = '\n'.join(values_strings_array)
 
     file_data = '\n'.join([keys_string, values_string])
 
     print(file_data)
 
     # send emails
-    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server = smtplib.SMTP('mail.infomaniak.com', 587)
     server.ehlo()
     server.starttls()
     server.ehlo()
-    server.login("logistic@beermyguest.ch", "Beer_2018")
-    text = file_data # todo: send as attachment ?
-    server.sendmail("stlo.manager@beermyguest.ch", "ib@beermyguest.ch", text)  # todo: fill to
+    server.login("logistic@beermyguest.ch", "Premium_Beer_2018")
+    text = file_data  # todo: send as attachment ?
+    server.sendmail("stlo.manager@beermyguest.ch", "jules.courtois@epfl.ch", text)
 
     #  todo: fix double call
     return flask.Response('OK', status=200)
