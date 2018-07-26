@@ -211,8 +211,8 @@ def order_placed():
 
     for product in order_products:
         # todo: limit field
-        billing_address_street = billing_address['street_1'] + billing_address['street_2']
-        shipping_address_street = order_shipping_address['street_1'] + order_shipping_address['street_2']
+        billing_address_street = ' '.join([billing_address['street_1'], billing_address['street_2']])
+        shipping_address_street = ' '.join([order_shipping_address['street_1'], order_shipping_address['street_2']])
 
         sl_values = [
             "BeerMyGuest",
