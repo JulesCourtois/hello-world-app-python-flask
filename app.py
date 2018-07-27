@@ -1,3 +1,5 @@
+import io
+
 from bigcommerce.api import BigcommerceApi
 from datetime import datetime, timedelta
 import smtplib
@@ -5,6 +7,10 @@ import dotenv
 import flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import COMMASPACE, formatdate
 import os
 
 # do __name__.split('.')[0] if initialising from a file not at project root
@@ -210,7 +216,6 @@ def order_placed():
     sl_values_array = []
 
     for product in order_products:
-        # todo: limit field
         billing_address_street = ' '.join([billing_address['street_1'], billing_address['street_2']])
         shipping_address_street = ' '.join([order_shipping_address['street_1'], order_shipping_address['street_2']])
 
@@ -271,8 +276,29 @@ def order_placed():
     server.starttls()
     server.ehlo()
     server.login("logistic@beermyguest.ch", "Premium_Beer_2018")
-    text = file_data  # todo: send as attachment ?
-    server.sendmail("stlo.manager@beermyguest.ch", "jules.courtois@epfl.ch", text)
+
+    send_from = "stlo.manager@beermyguest.ch"
+    send_to = ['jules.courtois@epfl.ch']
+
+    msg = MIMEMultipart()
+    msg['From'] = send_from
+    msg['To'] = COMMASPACE.join(send_to)
+    msg['Date'] = formatdate(localtime=True)
+    msg['Subject'] = "[StarLogistiqueManager] New Order " + str(order['id'])
+
+    attachment_filename = "order_" + str(order['id']) + ".txt"
+    msg.attach(MIMEText(file_data))
+
+    part = MIMEApplication(
+       file_data,
+       Name=attachment_filename
+    )
+    part['Content-Disposition'] = 'attachment; filename="%s"' % attachment_filename
+    msg.attach(part)
+
+    server.sendmail(send_from, send_to, msg.as_string())
+    server.close()
+    # server.sendmail("stlo.manager@beermyguest.ch", "jules.courtois@epfl.ch", text)
 
     #  todo: fix double call
     return flask.Response('OK', status=200)
