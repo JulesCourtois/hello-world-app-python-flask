@@ -215,6 +215,7 @@ def order_placed():
 
     sl_values_array = []
 
+    line_number = 1
     for product in order_products:
         billing_address_street = ' '.join([billing_address['street_1'], billing_address['street_2']])
         shipping_address_street = ' '.join([order_shipping_address['street_1'], order_shipping_address['street_2']])
@@ -254,13 +255,14 @@ def order_placed():
             'DPD',
             'PREDICT',
             order['customer_message'][:100],
-            str(product['order_address_id'])[:20],
+            str(line_number),  # str(product['order_address_id'])[:20],
             str(product['sku'])[:20],
             str(product['quantity'])[:5],
             '',  # unavailable in bigcommerce
             'BigCommerce'
         ]
         sl_values_array.append(sl_values)
+        line_number = line_number + 1
 
     keys_string = '\t'.join(sl_keys())
     values_strings_array = map(lambda values: '\t'.join(values), sl_values_array)
@@ -287,7 +289,7 @@ def order_placed():
     msg['Subject'] = "[StarLogistiqueManager] New Order " + str(order['id'])
 
     attachment_filename = "order_" + str(order['id']) + ".txt"
-    msg.attach(MIMEText(file_data))
+    msg.attach(MIMEText("Veuillez trouver ci-joint la commande BeerMyGuest #" + str(order['id']) + " à traiter."))
 
     part = MIMEApplication(
        file_data,
