@@ -288,7 +288,7 @@ def order_placed():
     msg['Date'] = formatdate(localtime=True)
     msg['Subject'] = "[StarLogistiqueManager] New Order " + str(order['id'])
 
-    attachment_filename = "order_" + str(order['id']) + ".txt"
+    attachment_filename = "PREPBEERMYGUEST" + datetime_created.strftime('%Y%m%d%H%M') + ".txt"
     msg.attach(MIMEText("Veuillez trouver ci-joint la commande BeerMyGuest #" + str(order['id']) + " à traiter."))
 
     part = MIMEApplication(
