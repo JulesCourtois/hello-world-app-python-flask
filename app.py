@@ -278,7 +278,7 @@ def order_placed():
     server.login("logistic@beermyguest.ch", "Premium_Beer_2018")
 
     send_from = "stlo.manager@beermyguest.ch"
-    send_to = ['jules.courtois@epfl.ch']
+    send_to = ['ib@beermyguest.ch']
 
     msg = MIMEMultipart()
     msg['From'] = send_from
@@ -298,7 +298,6 @@ def order_placed():
 
     server.sendmail(send_from, send_to, msg.as_string())
     server.close()
-    # server.sendmail("stlo.manager@beermyguest.ch", "jules.courtois@epfl.ch", text)
 
     #  todo: fix double call
     return flask.Response('OK', status=200)
